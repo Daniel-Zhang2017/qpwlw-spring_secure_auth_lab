@@ -1,8 +1,12 @@
 package com.example.secureauthapp.controller;
 
+import com.example.secureauthapp.model.User;
+import com.example.secureauthapp.service.CustomUserDetailsService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,7 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.secureauthapp.service.CustomUserDetailsService;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class WebsiteController {
@@ -18,58 +23,82 @@ public class WebsiteController {
     private final CustomUserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
 
-    public WebsiteController(CustomUserDetailsService userDetailsService, AuthenticationManager authenticationManager) {
+    public WebsiteController(CustomUserDetailsService userDetailsService, 
+                           AuthenticationManager authenticationManager) {
         this.userDetailsService = userDetailsService;
         this.authenticationManager = authenticationManager;
     }
 
-    @GetMapping("/greet")
-    public String greet(Model model) {
-        // Get the authenticated user's username
+    @GetMapping("/home")
+    public String homepage(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        System.out.println("Username from context "+username);
 
-        // Add the username to the model
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            return "redirect:/login";
+        }
+
+        String username = authentication.getName();
         model.addAttribute("username", username);
 
-        // Return the Thymeleaf template name
-        return "greet";
+        // Get user details including first name
+        User user = userDetailsService.getUserByUsername(username);
+        if (user != null) {
+            model.addAttribute("firstName", user.getFirstName());
+        }
+
+        String role = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .findFirst()
+            .orElse("ROLE_STAFF");
+
+        if (role.equals("ROLE_ADMIN")) {
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy 'at' hh:mm a");
+            String formattedDateTime = now.format(formatter);
+            model.addAttribute("currentDateTime", formattedDateTime);
+            return "admin";
+        } else {
+            return "viewer";
+        }
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // Returns the login.html template
+        return "login";
     }
 
     @GetMapping("/register")
     public String register() {
-        return "register"; // Returns the register.html template
+        return "register";
     }
 
-    // POST endpoint to handle user registration and auto-login
     @PostMapping("/register")
     public String registerUser(
-            @RequestParam String username, // Username from the form
-            @RequestParam String password // Password from the form
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam String role,
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam String email
     ) {
-        // Register the user by storing their details in the HashMap
         try {
-            userDetailsService.registerUser(username, password);
-        } catch (Exception userExistsAlready) {
-            // Redirect to the /register endpoint
-            return "redirect:/register?error";
+            userDetailsService.registerUser(username, password, role, firstName, lastName, email);
+        } catch (Exception e) {
+            // URL encode the error message for safety
+            String errorMessage = e.getMessage().replace(" ", "+");
+            return "redirect:/register?error=" + errorMessage;
         }
 
-        // Authenticate the user programmatically
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(username, password)
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (Exception e) {
+            // If auto-login fails, just redirect to login page
+            return "redirect:/login?success";
+        }
 
-        // Set the authentication in the SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Redirect to the /login endpoint
         return "redirect:/login?success";
     }
 }

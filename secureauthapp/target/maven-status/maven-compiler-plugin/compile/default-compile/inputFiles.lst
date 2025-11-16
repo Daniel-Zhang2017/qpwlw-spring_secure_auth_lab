@@ -1,5 +1,5 @@
-/Users/lavanyas/Downloads/secureapp/src/main/java/com/example/secureapp/SecureappApplication.java
-/Users/lavanyas/Downloads/secureapp/src/main/java/com/example/secureapp/config/WebSecurityConfig.java
-/Users/lavanyas/Downloads/secureapp/src/main/java/com/example/secureapp/controller/GreetingController.java
-/Users/lavanyas/Downloads/secureapp/src/main/java/com/example/secureapp/model/User.java
-/Users/lavanyas/Downloads/secureapp/src/main/java/com/example/secureapp/service/CustomUserDetailsService.java
+/home/project/qpwlw-spring_secure_auth_lab/secureauthapp/src/main/java/com/example/secureauthapp/SecureappApplication.java
+/home/project/qpwlw-spring_secure_auth_lab/secureauthapp/src/main/java/com/example/secureauthapp/config/WebSecurityConfig.java
+/home/project/qpwlw-spring_secure_auth_lab/secureauthapp/src/main/java/com/example/secureauthapp/controller/WebsiteController.java
+/home/project/qpwlw-spring_secure_auth_lab/secureauthapp/src/main/java/com/example/secureauthapp/model/User.java
+/home/project/qpwlw-spring_secure_auth_lab/secureauthapp/src/main/java/com/example/secureauthapp/service/CustomUserDetailsService.java

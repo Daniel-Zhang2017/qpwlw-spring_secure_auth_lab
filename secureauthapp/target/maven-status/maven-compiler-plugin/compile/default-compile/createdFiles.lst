@@ -1,5 +1,5 @@
-com/example/secureapp/config/WebSecurityConfig.class
-com/example/secureapp/model/User.class
-com/example/secureapp/service/CustomUserDetailsService.class
-com/example/secureapp/SecureappApplication.class
-com/example/secureapp/controller/GreetingController.class
+com/example/secureauthapp/service/CustomUserDetailsService.class
+com/example/secureauthapp/model/User.class
+com/example/secureauthapp/config/WebSecurityConfig.class
+com/example/secureauthapp/SecureappApplication.class
+com/example/secureauthapp/controller/WebsiteController.class

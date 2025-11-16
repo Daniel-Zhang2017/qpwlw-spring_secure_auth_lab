@@ -1,76 +1,122 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Page</title>
+    <title>Register</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .registration-container {
-            background-color: #fff;
+            max-width: 400px;
+            margin: 50px auto;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
         }
-        .registration-container h2 {
-            margin-bottom: 20px;
+        .form-group {
+            margin-bottom: 15px;
         }
-        .registration-container input, .registration-container select {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
-        .registration-container button {
-            width: 80%;
+        button {
+            width: 100%;
             padding: 10px;
-            background-color: #2d2db0;
-            color: #fff;
+            background-color: #007bff;
+            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
-        .registration-container button:hover {
-            background-color: #2d2db0;
+        button:hover {
+            background-color: #0056b3;
         }
-
-		.error {
+        .error {
             color: red;
-            margin-top: 10px;
+            margin-bottom: 15px;
         }
-
+        .success {
+            color: green;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="registration-container">
-        <h2>Register</h2>
-        <form th:action="@{/register}" method="post" class="form-group">
-            <!-- Username -->
-            <input type="text" name="username" placeholder="Username" required>
-            
-            <!-- Password -->
-            <input type="password" name="password" placeholder="Password" required>
-                        
-            <!-- Submit Button -->
-            <button type="submit">Register</button>
-        </form>
-        <!-- Error Message -->
-		<div th:if="${param.error}" class="error">
-			Invalid username.
-		</div>
-		
-        <p>Already have an account? <a href="/login">Login here</a></p>
+    <h2>Register</h2>
+    
+    <div th:if="${param.error}" class="error">
+        Error: <span th:text="${param.error[0]}">Registration failed</span>
     </div>
+    
+    <div th:if="${param.success}" class="success">
+        Registration successful! You can now login.
+    </div>
+
+    <form method="post" action="/register">
+        <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" required 
+                   pattern="[A-Za-z]{1,50}" title="First name should contain only letters (max 50 characters)">
+        </div>
+        
+        <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" required 
+                   pattern="[A-Za-z]{1,50}" title="Last name should contain only letters (max 50 characters)">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required 
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                   title="Please enter a valid email address">
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" required 
+                   minlength="3" maxlength="20" 
+                   pattern="[A-Za-z0-9_]+" 
+                   title="Username should be 3-20 characters long and contain only letters, numbers, and underscores">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required 
+                   minlength="6" 
+                   title="Password must be at least 6 characters long">
+        </div>
+        
+        <div class="form-group">
+            <label for="role">Role *</label>
+            <select id="role" name="role" required>
+                <option value="ROLE_STAFF">Staff</option>
+                <option value="ROLE_ADMIN">Admin</option>
+            </select>
+        </div>
+        
+        <button type="submit">Register</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 20px;">
+        <a href="/login">Already have an account? Login here</a>
+    </p>
+
+    <script>
+        // Client-side validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long');
+                return false;
+            }
+            return true;
+        });
+    </script>
 </body>
 </html>
